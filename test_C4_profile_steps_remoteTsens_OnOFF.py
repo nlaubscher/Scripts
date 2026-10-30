@@ -48,25 +48,18 @@ logger = logging.getLogger(__name__)
 
 # *********** User input **************
 
-OPERATOR = 'JUB'
+OPERATOR = 'NLAU'
 MMNT_NR = 'test' # 'CHI031_07' # '
-MEASUREMENT_SESSION = f"{MMNT_NR}_C4_profile_steps"
+MEASUREMENT_SESSION = f"{MMNT_NR}_C4_profile_steps_OnOff"
 
 SIMULATE = False # True
 MEASURE_SENSORS = not SIMULATE
 
-SENSOR_TYPE = "C4"
-VOLTAGE_HEATER = 4
 CONTINUOUS = False
 
-T_AH_dict = {
-    # 5: (5, [0, 5]),#T : (STD_AH_of_T, AH_steps) g/m3
-    20: (11.5, [0, 11.5]), # 20°C-> max 14 g/m3 at 10000 Pa
-    50: (11.5, [7.5, 11.5, 35, 50]),
-    80: (11.5, [7.5, 11.5, 35, 50])
-    }
 
-# Pilatus IP adresses, including the pathes of the power calibration
+# check Pilatus IPs and set path to power calib later!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Pilatus IP adresses, including the pathes of the power calibration | adjust paths to power calib??????????????????????
 TSENS_CALIB_PATH = r'L:\Chemical\MmntSetups\Chimaera\2026_09\20260929T141743Z_CHI031_10_C4_Tsens_recalib_8059\20260929T142857Z_TSensorRecalib_B787\bridge_data_files'
 IP_ADDRESSES = {
     '192.168.100.102': {
@@ -92,51 +85,22 @@ OTP_VERSION = 2
 #   Each entry must be a list of the 4 pixels in degrees Celsius.
 #   Use float('nan') for no heating.
 nan = float('nan')
-PROFILE_TEMPS = [
-    nan,
-    80.,
-    140.,
-    200.,
-    260.,
-    320.,
-    380.,
-    440.,
-    500.,
-    560.,
+
+PROFILE = [
+    [nan, nan, nan, nan],
+    [540., 540., 540., 540.],
+    [nan, nan, nan, nan],
+    [540., 540., 540., 540.],
+    [nan, nan, nan, nan],
+    [540., 540., 540., 540.],
 ]
 
-HEATED_BRIDGES = {
-    "C2": [0, 2],  # Px1, Px3
-    "C4": [1, 3],  # Px2, Px4
-}
-
-def build_profile(profile_temps, sensor_type):
-    heated_bridges = HEATED_BRIDGES[sensor_type]
-
-    profile = []
-    for temp in profile_temps:
-        step = [nan] * 4
-
-        # works for both normal values and NaN
-        for bridge in heated_bridges:
-            step[bridge] = temp
-
-        profile.append(step)
-
-    return profile
-
-
-PROFILE = build_profile(
-    profile_temps=PROFILE_TEMPS,
-    sensor_type=SENSOR_TYPE,
-)
-
+# After annealing, the path of the last power-calibration can be given. It is the folder named 'bridge_data_files'
+# PATH_POWER_CALIB = r"C:\work\SensiLab\data\2026_07\20260719T190142Z_PowerCalibPostAnnealing_4494\bridge_data_files"
+PATH_POWER_CALIB = None
 
 # Time to wait in milliseconds for each profile step
 STEP_WAIT_TIME_MS = 100.
-
-# Averaging of Noise-shaper input, Decimator output and TJunction. Choose 32, 64 or 128
-N_AVG = 128
 
 # Heater controller config
 HEAT_CTRL_CFG = {
@@ -146,43 +110,32 @@ HEAT_CTRL_CFG = {
     'N': 3  # 0: 2, 1: 4, 2: 8, 3: 16, 4: 32, 5: 64, 6: 128, 7: 256
 }
 
-# Sampling rate must be large enough for sensors to finish
-SAMPLING_RATE = 0.2 + len(PROFILE) * (0.015 + N_AVG * 0.00256 + 0.001 * STEP_WAIT_TIME_MS)
+# Averaging of Noise-shaper input, Decimator output and TJunction. Choose 32, 64 or 128
+N_AVG = 128
 
 # Time to wait for Tjunction measurement
-WAIT_TIME_TJ_SEC = 1e-3 * N_AVG * 4 # Important for remote T-sensor option.
+WAIT_TIME_TJ_SEC = 1e-3 * N_AVG * 4
 
-# to be discussed
-LOG_INTERVAL = 4
-STD_AH = 11.5 # g/m3
+# ADC frequency during integration
+f_adc = 400000. if (HEAT_CTRL_CFG['FAdc'] & 1) else 800000.
+# Integration time for N_AVG measurements for 4 bridges:
+t_single = 2048. * N_AVG / f_adc
+
+# For EVERY_SEC use at least: 0.25 + len(PROFILE) * (0.015 + t_single + 0.001 * STEP_WAIT_TIME_MS)
+EVERY_SEC = 0.25 + len(PROFILE) * (0.015 + t_single + 0.001 * STEP_WAIT_TIME_MS)
+DURING_MIN = 1.
+
+# Heater voltage
+VOLTAGE_HEATER = 4.
 
 
 FLOW = 1.0
 STD_PRESSURE = 1e5
-STD_TEMPERATURE = 20
-
-REPETITIONS = 1
-
-# Flushing inputs
-PROPANE_FLUSH_CONC = 10000
-CO2_FLUSH_CONC = 10000
-FLUSH_TIME_MIN = 5
+STD_TEMPERATURE = 20 # degC
+STD_AH = 7.5 # g/m3
 
 
-COOL_TIME_MIN = 90
-HEAT_TIME_MIN = 60
 
-COOLING_RATE = 6. # degC/min
-HEATING_RATE = 3. # degC/min
-
-PROPANE_CONCS_PRE_POST= [7875, 4200, 1470, 0]
-
-PROPANE_CONCS = [0, 7875, 4200, 1470]
-CO2_CONCS = [0, 5000, 2500, 400]
-PROPANE_CONCS_CROSS = PROPANE_CONCS
-CO2_CONCS_CROSS = [5000, 400]
-
-P_STEPS = [1.2e5, 1e5, 0.8e5]
 
 
 with SensiLabSetup(config_project= r'C:\work\SVN\SensiLab\chemical\configs\project\chemical_chimaera_config_project.ini',
@@ -230,11 +183,7 @@ with SensiLabSetup(config_project= r'C:\work\SVN\SensiLab\chemical\configs\proje
                 heat_ctrl_cfg=HEAT_CTRL_CFG
             )
 
-    # ─────────────────────────────
     # GMS mmnt sequence
-    #─────────────────────────────
-
-
 
     #Pre-Mmnt room T room temperature measurement
     setup.start_measurement_series('TestMmnt1')
@@ -243,7 +192,7 @@ with SensiLabSetup(config_project= r'C:\work\SVN\SensiLab\chemical\configs\proje
     gms.set_gas_mix(dict(Propane=0 * 1e-6, CO2=0*1e-6, AH=STD_AH), flow=FLOW,
                     ignore_min_flow=True, ignore_humidity_range=True)
 
-    pilatus_tc_profile_measure_every_during(setup, pilatus, PROFILE, 5, 2, WAIT_TIME_TJ_SEC)
+    pilatus_tc_profile_measure_every_during(setup, pilatus, PROFILE, EVERY_SEC, DURING_MIN, WAIT_TIME_TJ_SEC)
 
 
 
