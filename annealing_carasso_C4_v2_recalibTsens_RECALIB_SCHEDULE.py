@@ -87,8 +87,8 @@ SIMULATE = False # True
 SAMPLING_RATE = 4 # every x seconds
 PRE_MMMT_TIME = 20. # min
 
-V_HEATER_ANNEAL = 5 # degC
-V_HEATER_RECALIB = 4 # degC
+V_HEATER_ANNEAL = 5 # V
+V_HEATER_RECALIB = 4 # V
 
 ACTIVE_MASK = 32 * [True]
 
@@ -110,7 +110,7 @@ def build_sequence(mask, temps, sensor_counts):
         []
     )
 
-T1, T2, T3, T4 = 700, 750, 800, 850
+T1, T2, T3, T4 = 700., 750., 800., 850.
 L_ALL_PX    = build_sequence([1, 1, 1, 1], (T1, T2, T3, T4), (8, 8, 8, 8))  
 L_PX1_2_3  = build_sequence([1, 1, 1, 0], (T1, T2, T3, T4), (8, 8, 8, 8))
 L_PX1_2    = build_sequence([1, 1, 0, 0], (T1, T2, T3, T4), (8, 8, 8, 8))

@@ -84,8 +84,8 @@ SIMULATE = False# True
 SAMPLING_RATE = 4 # every x seconds
 PRE_MMMT_TIME = 20. # min
 
-V_HEATER_ANNEAL = 5 # degC
-V_HEATER_RECALIB = 4 # degC
+V_HEATER_ANNEAL = 5 # V
+V_HEATER_RECALIB = 4 # V
 
 ACTIVE_MASK = 32 * [True]
 
@@ -94,8 +94,8 @@ no_heat_list = [nan, nan, nan, nan]
 
 path_power_calib = None
 
-T_OFF = 0.
-T1, T2, T3, T4 = 700, 750, 800, 850
+T_OFF = nan
+T1, T2, T3, T4 = 700., 750., 800., 850.
 
 # All pixels active
 L_ALL_PX = [
@@ -146,7 +146,7 @@ BACKDOOR = True
 STD_AH = 7.5 # g/m3
 STD_FLOW = 1.0  # l/min
 STD_PRESSURE = 1e5  # Pa
-STD_TEMPERATURE = 20 # degC
+STD_TEMPERATURE = 20. # degC
 
 # Pulse mask: Important: Use only values 0 (always burn) or 65535 (never burn)
 #   or exponentials of 2, e.g. PULSE_MASK either 0, 1, 2, 4, 8, 16, ..., 32768. In that case the period (on and off
