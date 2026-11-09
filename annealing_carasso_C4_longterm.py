@@ -16,9 +16,9 @@ MEASUREMENT_SESSION = f"{MMNT_NAME}_longterm"
 
 
 PILATUS_IPS = [
-    "192.168.100.100",  # note corresponding EcoDongle
-    "192.168.100.101",  #
-    "192.168.100.102",  #
+    "192.168.100.111",  # CHI026-029 D0
+    "192.168.100.102",  # CHI026-040 D1
+    "192.168.100.111",  # CHI026-057 D2
 
 ]
 
@@ -51,9 +51,9 @@ T_SET_DEGC = [
 
 # After annealing, the path of the last power-calibration can be given. It is the folder named 'bridge_data_files'
 PATH_POWER_CALIB = [
-    r"L:\Chemical\MmntSetups\Chimaera\2026_10\20261027T102749Z_CHI048_01_C4_annealing_Tsens_recalib_4109\20261027T131315Z_TSensorRecalib_8_B87C\calibration_files", # for D0
-    r"L:\Chemical\MmntSetups\Chimaera\2026_11\20261103T141629Z_CHI048_02_C4_annealing_Tsens_recalib_78FC\20261103T170902Z_TSensorRecalib_8_4C97\calibration_files", # for D1 and D2
-    r"L:\Chemical\MmntSetups\Chimaera\2026_11\20261103T141629Z_CHI048_02_C4_annealing_Tsens_recalib_78FC\20261103T170902Z_TSensorRecalib_8_4C97\calibration_files", # for D1 and D2
+    r"L:\Chemical\MmntSetups\Chimaera\2026_10\20261027T102749Z_CHI048_01_C4_annealing_Tsens_recalib_4109\20261027T131315Z_TSensorRecalib_8_B87C\bridge_data_files", # for D0
+    r"L:\Chemical\MmntSetups\Chimaera\2026_11\20261103T141629Z_CHI048_02_C4_annealing_Tsens_recalib_78FC\20261103T170902Z_TSensorRecalib_8_4C97\bridge_data_files", # for D1 and D2
+    r"L:\Chemical\MmntSetups\Chimaera\2026_11\20261103T141629Z_CHI048_02_C4_annealing_Tsens_recalib_78FC\20261103T170902Z_TSensorRecalib_8_4C97\bridge_data_files", # for D1 and D2
 ]
 
 # PATH_POWER_CALIB = None
