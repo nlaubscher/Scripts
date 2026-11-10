@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from sensirion_sensilab_core import SensiLabSetup
 from sensirion_sensilab_chimaera_carasso_internal.platforms.pilatus_chimaera_carasso_c4_latest import (
-    PilatusTcProfilesCarassoC4)
+    PilatusTcProfilesCarassoC4, PilatusContinuousCarassoC4)
 from sensirion_sensilab_chimaera_carasso_internal.platforms.pilatus_carasso_c4_helper_functions import (
-    pilatus_tc_profile_measure_every_during)
+    pilatus_tc_profile_measure_every_during, run_power_characterization)
 
 
 # Session settings
@@ -91,6 +91,25 @@ def main():
         setup.start_measurement_series(label='test')
 
         pilatus_tc_profile_measure_every_during(setup, pilatus, PROFILE, EVERY_SEC, DURING_MIN, WAIT_TIME_TJ_SEC)
+
+        # Pilatus object has to be destroyed, before creating a continuous measurement object
+        pilatus.self_destroy()
+
+        pilatus = PilatusContinuousCarassoC4(
+            setup,
+            ip_address=PILATUS_IP,
+            active_mask=ACTIVE_MASK,
+            voltage_heater=VOLTAGE_HEATER,
+            path_power_calib=PATH_POWER_CALIB
+        )
+
+        #perform power characterization with standard runin 10s at 180°C
+        run_power_characterization(
+            setup=setup,
+            pilatus_handles=pilatus,)
+        
+        # Pilatus object has to be destroyed, before creating a TC-profile measurement object
+        pilatus.self_destroy()
 
 
 if __name__ == '__main__':
