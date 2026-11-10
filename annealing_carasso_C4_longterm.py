@@ -72,7 +72,9 @@ HEAT_CTRL_CFG = {
 
 
 def main():
-    with SensiLabSetup(auto_create_config_devices=True) as setup:
+    with SensiLabSetup(config_project=r'C:\work\SVN\SensiLab\chemical\configs\project\chemical_chimaera_config_project.ini',
+                   logging_level=logging.INFO,
+                   metadata=dict(Operator=OPERATOR)) as setup:
 
         setup.start_measurement_session(MEASUREMENT_SESSION)
 

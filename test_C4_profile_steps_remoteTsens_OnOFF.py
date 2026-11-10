@@ -6,8 +6,12 @@ from sensirion_sensilab_chimaera_carasso_internal.platforms.pilatus_carasso_c4_h
     pilatus_tc_profile_measure_every_during, run_power_characterization)
 
 
+
 # Session settings
-SESSION_ID = 'Test'
+OPERATOR = 'NLAU'
+MMNT_NR =  'CHI048_0x' #'CHI031_02' #'CHI028_01' #
+MEASUREMENT_SESSION = f"{MMNT_NR}_C4_powerCycles"
+
 PILATUS_IP = "192.168.100.100"
 
 # Active mask: For now (bug?) set only sensors that reliably work to True
@@ -69,9 +73,11 @@ VOLTAGE_HEATER = 4.
 
 
 def main():
-    with SensiLabSetup(auto_create_config_devices=True) as setup:
+    with SensiLabSetup(config_project=r'C:\work\SVN\SensiLab\chemical\configs\project\chemical_chimaera_config_project.ini',
+                   logging_level=logging.INFO,
+                   metadata=dict(Operator=OPERATOR)) as setup:
 
-        setup.start_measurement_session(SESSION_ID)
+        setup.start_measurement_session(MEASUREMENT_SESSION)
 
         pilatus = PilatusTcProfilesCarassoC4(
             setup,
