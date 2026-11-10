@@ -12,7 +12,7 @@ OPERATOR = 'NLAU'
 MMNT_NR =  'CHI048_0x' #'CHI031_02' #'CHI028_01' #
 MEASUREMENT_SESSION = f"{MMNT_NR}_C4_powerCycles"
 
-PILATUS_IP = "192.168.100.100"
+PILATUS_IP = "192.168.100.XXX"
 
 # Active mask: For now (bug?) set only sensors that reliably work to True
 ACTIVE_MASK = 32 * [True]
@@ -27,20 +27,19 @@ CONTINUOUS = False
 nan = float('nan')
 PROFILE = [
     [nan, nan, nan, nan],
-    [560., 560., nan, 560.],
-    [nan, nan, nan, nan],
-    [560., 560., nan, 560.],
-    [nan, nan, nan, nan],
-    [560., 560., nan, 560.],
-    [nan, nan, nan, nan],
-    [560., 560., nan, 560.],
-    [nan, nan, nan, nan],
-    [560., 560., nan, 560.],
+    [560., 560., 560., 560.],
+    [560., 560., 560., 560.],
+    [560., 560., 560., 560.],
+    [560., 560., 560., 560.],
+    [560., 560., 560., 560.],
+    [560., 560., 560., 560.],
+    [560., 560., 560., 560.],
+    [560., 560., 560., 560.],
+    [560., 560., 560., 560.],
 ]
 
 # After annealing, the path of the last power-calibration can be given. It is the folder named 'bridge_data_files'
-PATH_POWER_CALIB = r"C:\work\SensiLab\data\2026_11\20261104T102120Z_CHI048_03_C4_annealing_Tsens_recalib_38FD"  #double check path on messpc
-PATH_POWER_CALIB = None
+PATH_POWER_CALIB = r"L:\Chemical\MmntSetups\Chimaera\2026_11\20261104T102120Z_CHI048_03_C4_annealing_Tsens_recalib_38FD\20261104T123810Z_TSensorRecalib_5_B9D0\bridge_data_files"
 
 # Time to wait in milliseconds for each profile step
 STEP_WAIT_TIME_MS = 100.
@@ -66,7 +65,7 @@ t_single = 2048. * N_AVG / f_adc
 
 # For EVERY_SEC use at least: 0.25 + len(PROFILE) * (0.015 + t_single + 0.001 * STEP_WAIT_TIME_MS)
 EVERY_SEC = 0.25 + len(PROFILE) * (0.015 + t_single + 0.001 * STEP_WAIT_TIME_MS)
-DURING_MIN = 1.
+DURING_MIN = 172800.
 
 # Heater voltage
 VOLTAGE_HEATER = 4.
@@ -112,7 +111,9 @@ def main():
         #perform power characterization with standard runin 10s at 180°C
         run_power_characterization(
             setup=setup,
-            pilatus_handles=pilatus,)
+            pilatus_handles=pilatus,
+            temperature_setpoints = [float('nan'), 80., 200., 320., 440., 560.],
+        )
         
         # Pilatus object has to be destroyed, before creating a TC-profile measurement object
         pilatus.self_destroy()

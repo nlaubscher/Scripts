@@ -18,7 +18,7 @@ MEASUREMENT_SESSION = f"{MMNT_NAME}_longterm"
 PILATUS_IPS = [
     "192.168.100.111",  # CHI026-029 D0
     "192.168.100.102",  # CHI026-040 D1
-    "192.168.100.111",  # CHI026-057 D2
+    "192.168.100.100",  # CHI026-057 D2
 
 ]
 
@@ -59,7 +59,7 @@ PATH_POWER_CALIB = [
 # PATH_POWER_CALIB = None
 
 # Measurement logging
-EVERY_SEC = 10.             # should be sufficient for longterm mmt
+EVERY_SEC = 20.             # should be sufficient for longterm mmt
 DURING_MIN = 172800.        # 120 days
 
 # Heater-controller settings (see Carasso NPD)
@@ -115,7 +115,9 @@ def main():
             #perform power characterization with standard runin 10s at 180°C
             run_power_characterization(
                 setup=setup,
-                pilatus_handles=pilatus,)
+                pilatus_handles=pilatus,
+                temperature_setpoints = [float('nan'), 80., 200., 320., 440., 560.],
+            )
 
 
 if __name__ == '__main__':
