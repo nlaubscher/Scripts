@@ -94,6 +94,14 @@ def main():
 
         # start continuous longterm mmt
         setup.start_measurement_series(label='longterm')
+
+        # Characterize power before starting the long-term measurement
+        run_power_characterization(
+            setup=setup,
+            pilatus_handles=pilatus,
+            temperature_setpoints=[float('nan'), 80., 200., 320., 440., 560.],
+        )
+
         remaining_sec = 60. * DURING_MIN
         one_day_sec = 24. * 60. * 60.
         while remaining_sec > 0:
