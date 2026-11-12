@@ -78,45 +78,79 @@ def main():
 
         setup.start_measurement_session(MEASUREMENT_SESSION)
 
-        pilatus = PilatusTcProfilesCarassoC4(
-            setup,
-            ip_address=PILATUS_IP,
-            active_mask=ACTIVE_MASK,
-            voltage_heater=VOLTAGE_HEATER,
-            continuous=CONTINUOUS,
-            n_avg=N_AVG,
-            path_power_calib=PATH_POWER_CALIB
-        )
-        pilatus.set_profile(
-            t_set_degc=PROFILE,
-            heat_ctrl_cfg=HEAT_CTRL_CFG,
-            step_wait_time_ms=STEP_WAIT_TIME_MS
-        )
+        elapsed_min = 0
+        step_nr = 0
+        next_interval_days = 1
 
-        setup.start_measurement_series(label='test')
+        while elapsed_min < DURING_MIN:
 
-        pilatus_tc_profile_measure_every_during(setup, pilatus, PROFILE, EVERY_SEC, DURING_MIN, WAIT_TIME_TJ_SEC)
+            # Characterization
+            pilatus = PilatusContinuousCarassoC4(
+                setup,
+                ip_address=PILATUS_IP,
+                active_mask=ACTIVE_MASK,
+                voltage_heater=VOLTAGE_HEATER,
+                path_power_calib=PATH_POWER_CALIB
+            )
 
-        # Pilatus object has to be destroyed, before creating a continuous measurement object
-        pilatus.self_destroy()
+            setup.start_measurement_series(
+                label=f"PowerCharacterization_step_{step_nr}"
+            )
 
-        pilatus = PilatusContinuousCarassoC4(
-            setup,
-            ip_address=PILATUS_IP,
-            active_mask=ACTIVE_MASK,
-            voltage_heater=VOLTAGE_HEATER,
-            path_power_calib=PATH_POWER_CALIB
-        )
+            run_power_characterization(
+                setup=setup,
+                pilatus_handles=pilatus,
+                temperature_setpoints=[
+                    float('nan'), 80., 200., 320., 440., 560.
+                ],
+            )
 
-        #perform power characterization with standard runin 10s at 180°C
-        run_power_characterization(
-            setup=setup,
-            pilatus_handles=pilatus,
-            temperature_setpoints = [float('nan'), 80., 200., 320., 440., 560.],
-        )
-        
-        # Pilatus object has to be destroyed, before creating a TC-profile measurement object
-        pilatus.self_destroy()
+            pilatus.self_destroy()
+
+            if elapsed_min >= DURING_MIN:
+                break
+
+            # Run until next characterization
+            interval_min = min(
+                next_interval_days * 24 * 60,
+                DURING_MIN - elapsed_min
+            )
+
+            pilatus = PilatusTcProfilesCarassoC4(
+                setup,
+                ip_address=PILATUS_IP,
+                active_mask=ACTIVE_MASK,
+                voltage_heater=VOLTAGE_HEATER,
+                continuous=CONTINUOUS,
+                n_avg=N_AVG,
+                path_power_calib=PATH_POWER_CALIB
+            )
+
+            pilatus.set_profile(
+                t_set_degc=PROFILE,
+                heat_ctrl_cfg=HEAT_CTRL_CFG,
+                step_wait_time_ms=STEP_WAIT_TIME_MS
+            )
+
+            setup.start_measurement_series(
+                label=f"OnOff_step_{step_nr}"
+            )
+
+            pilatus_tc_profile_measure_every_during(
+                setup,
+                pilatus,
+                PROFILE,
+                EVERY_SEC,
+                interval_min,
+                WAIT_TIME_TJ_SEC,
+            )
+
+            pilatus.self_destroy()
+
+            elapsed_min += interval_min
+            next_interval_days += 1
+            step_nr += 1
+
 
 
 if __name__ == '__main__':
