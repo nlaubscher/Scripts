@@ -76,56 +76,54 @@ def main():
                    logging_level=logging.INFO,
                    metadata=dict(Operator=OPERATOR)) as setup:
 
-        setup.start_measurement_session(MEASUREMENT_SESSION)
-
-        pilatus = [
-            PilatusContinuousCarassoC4(
-                setup,
-                ip_address=pilatus_ip,
-                active_mask=ACTIVE_MASK,
-                voltage_heater=VOLTAGE_HEATER,
-                path_power_calib=power_calib_path,
-            )
-            for pilatus_ip, power_calib_path in zip(
-                PILATUS_IPS,
-                PATH_POWER_CALIB
-            )
-        ]
-
-        # start continuous longterm mmt
-        setup.start_measurement_series(label='longterm')
-
         # Characterize power before starting the long-term measurement
+        setup.start_measurement_series(label='power_characterization_0')
         run_power_characterization(
             setup=setup,
             pilatus_handles=pilatus,
             temperature_setpoints=[float('nan'), 80., 200., 320., 440., 560.],
         )
 
+        # DURING_MIN is the total measurement duration; run in daily cycles,
+        # with a shorter final cycle when needed.
         remaining_sec = 60. * DURING_MIN
         one_day_sec = 24. * 60. * 60.
+        cycle = 1
+
         while remaining_sec > 0:
+
+            # New series for this long-term cycle
+            setup.start_measurement_series(label=f'longterm_cycle_{cycle}')
+
             for _pilatus in pilatus:
                 _pilatus.start_continuous_measurement(
-                    T_SET_DEGC, continuous=CONTINUOUS, heat_ctrl_cfg=HEAT_CTRL_CFG)
+                    T_SET_DEGC,
+                    continuous=CONTINUOUS,
+                    heat_ctrl_cfg=HEAT_CTRL_CFG
+                )
+
             setup.start_continuous_measurement(every_sec=EVERY_SEC)
 
-            # wait 24h until next step
+            # Run for one day (or the remaining duration for the final cycle).
             measurement_sec = min(one_day_sec, remaining_sec)
             setup.wait(measurement_sec)
             remaining_sec -= measurement_sec
 
-            #stop mmt before power characterization
+            # stop long-term measurement
             setup.stop_continuous_measurement()
             for _pilatus in pilatus:
                 _pilatus.stop_measurement()
 
-            #perform power characterization with standard runin 10s at 180°C
+            # New series for power characterization
+            setup.start_measurement_series(label=f'power_characterization_{cycle}')
+
             run_power_characterization(
                 setup=setup,
                 pilatus_handles=pilatus,
-                temperature_setpoints = [float('nan'), 80., 200., 320., 440., 560.],
+                temperature_setpoints=[float('nan'), 80., 200., 320., 440., 560.],
             )
+
+            cycle += 1
 
 
 if __name__ == '__main__':
